@@ -58,7 +58,7 @@ async def close_db() -> None:
 
 async def _ensure_indexes(db: Optional[AsyncIOMotorDatabase] = None) -> None:
     """Create indexes on the metadata collection if they do not exist."""
-    database = db or get_db()
+    database = db if db is not None else get_db()
     collection = database["metadata"]
     await collection.create_index("url", unique=True)
     await collection.create_index("created_at")

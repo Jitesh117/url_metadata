@@ -182,16 +182,14 @@ async def test_get_metadata_pending_returns_202(async_client, mocker: MockerFixt
 
 
 @pytest.mark.asyncio
-async def test_get_metadata_failed_returns_200(async_client):
-    """GET returns 200 when failed record exists."""
+async def test_get_metadata_failed_returns_502(async_client):
+    """GET returns 502 when failed record exists."""
     await mark_failed(SAMPLE_URL, "Previous error")
 
     response = await async_client.get("/metadata", params={"url": SAMPLE_URL})
 
-    assert response.status_code == 200
-    body = response.json()
-    assert body["status"] == "failed"
-    assert body["error"] == "Previous error"
+    assert response.status_code == 502
+    assert "Previous error" in response.json()["detail"]
 
 
 @pytest.mark.asyncio

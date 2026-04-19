@@ -129,6 +129,7 @@ async def create_metadata(request: Request, body: MetadataRequest) -> MetadataRe
         202: {"description": "URL not in inventory or pending"},
         422: {"description": "Invalid URL"},
         429: {"description": "Rate limit exceeded"},
+        502: {"description": "Metadata collection failed for this URL"},
         503: {"description": "Database not ready"},
     },
 )
@@ -170,7 +171,10 @@ async def get_metadata(
             )
 
         if record_status == CollectionStatus.FAILED:
-            return _doc_to_response(doc)
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail=f"Failed to collect metadata: {doc.get('error') or 'Unknown error'}",
+            )
 
     try:
         inserted = await mark_pending_if_absent(normalized_url)
@@ -205,7 +209,13 @@ async def get_metadata(
         if latest_doc is not None and latest_doc["status"] == CollectionStatus.COMPLETED:
             return _doc_to_response(latest_doc)
         if latest_doc is not None and latest_doc["status"] == CollectionStatus.FAILED:
-            return _doc_to_response(latest_doc)
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail=(
+                    "Failed to collect metadata: "
+                    f"{latest_doc.get('error') or 'Unknown error'}"
+                ),
+            )
         message = "Collection in progress. Please retry your request shortly."
 
     return JSONResponse(

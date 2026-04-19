@@ -82,6 +82,7 @@ app.state.limiter = limiter
 
 app.add_middleware(
     CORSMiddleware,
+    # allows all currently, since we are in dev right now and there's no frontend to serve this to, only the swagger UI
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
