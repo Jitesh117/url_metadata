@@ -76,10 +76,11 @@ Retrieves stored metadata for a URL.
 
 | Code | Meaning |
 |------|---------|
-| 200 | Record found (completed or failed); full dataset returned |
+| 200 | Record found (completed); full dataset returned |
 | 202 | Record not found, collection scheduled; or collection pending |
 | 422 | Invalid or missing `url` query parameter |
 | 429 | Rate limit exceeded |
+| 502 | Metadata collection for this URL failed |
 | 503 | Database not ready |
 
 **Example**
